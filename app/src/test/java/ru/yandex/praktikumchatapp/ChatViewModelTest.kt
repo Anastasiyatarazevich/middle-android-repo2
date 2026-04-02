@@ -1,10 +1,15 @@
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.joinAll
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.hamcrest.CoreMatchers.equalTo
+import org.hamcrest.MatcherAssert.assertThat
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
@@ -32,14 +37,33 @@ class ChatViewModelTest {
     @Test
     fun `send message should update state with MyMessage`() = runTest {
         val message = Message.MyMessage("TestMessage")
+        viewModel.sendMyMessage(message.text)
 
-        // TODO Задание 5: допишите юнит-тест
+        val currentState = viewModel.chatState.value
+        assertThat(currentState.messages, equalTo(listOf(message)))
     }
 
     @Test
     fun testReceiveMessage_concurrentMessages() = runTest {
         val messagesToSend = (1..100).map { Message.MyMessage("Message $it") }
 
-        // TODO Задание 6: допишите юнит-тест
+        coroutineScope {
+            val jobs = messagesToSend.map { message ->
+                launch {
+                    viewModel.sendMyMessage(message.text)
+                }
+            }
+            jobs.joinAll()
+        }
+
+        val currentState = viewModel.chatState.value
+        assertThat(currentState.messages.size, equalTo(100))
+
+        messagesToSend.forEach { expectedMessage ->
+            assertThat(
+                currentState.messages.contains(expectedMessage),
+                equalTo(true)
+            )
+        }
     }
 }
