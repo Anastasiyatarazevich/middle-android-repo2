@@ -38,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ru.yandex.praktikumchatapp.presentation.ChatState
 import ru.yandex.praktikumchatapp.presentation.ChatViewModel
 import ru.yandex.praktikumchatapp.presentation.Message
@@ -75,7 +76,7 @@ fun ChatScreen(
     modifier: Modifier = Modifier
 ) {
     val viewModel = remember { ChatViewModel() }
-    val chatState = viewModel.chatState.collectAsState(ChatState())
+    val chatState = viewModel.chatState.collectAsStateWithLifecycle(ChatState())
     val messageText = remember { mutableStateOf("") }
     val focusRequester = remember { FocusRequester() }
 

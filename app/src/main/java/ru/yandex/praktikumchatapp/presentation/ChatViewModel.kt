@@ -2,6 +2,7 @@ package ru.yandex.praktikumchatapp.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +25,7 @@ class ChatViewModel(
                 repository.getReplyMessage().collect { response ->
                     _chatState.update { currentState ->
                         currentState.copy(
-                            messages = currentState.messages + Message.OtherMessage(response),
+                            messages = (currentState.messages + Message.OtherMessage(response)).toImmutableList(),
                             shouldShowKeyboard = if (currentState.messages.isEmpty()) true else currentState.shouldShowKeyboard
                         )
                     }
@@ -36,7 +37,7 @@ class ChatViewModel(
     fun sendMyMessage(messageText: String) {
         _chatState.update { currentState ->
             currentState.copy(
-                messages = currentState.messages + Message.MyMessage(messageText)
+                messages = (currentState.messages + Message.MyMessage(messageText)).toImmutableList()
             )
         }
     }
